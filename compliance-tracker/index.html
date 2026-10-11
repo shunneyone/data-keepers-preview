@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en-AU">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Compliance register | Wattle Civil</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<a class="skip" href="#main">Skip to register</a>
+<header><div class="brand">WC <span>Wattle Civil <small>Fictional Australian business</small></span></div><span class="prototype">LOCAL PROTOTYPE</span></header>
+<main id="main">
+<div class="page-heading"><div><p class="eyebrow">OPERATIONS / COMPLIANCE</p><h1>Document register</h1><p>Keep credentials visible. See what needs attention.</p></div><button id="add" type="button">+ Add document</button></div>
+<p class="notice">Fictional demonstration data only. Changes last for this session; reload to restore the demo. No document files are stored.</p>
+<section aria-labelledby="overview"><h2 id="overview">Register overview</h2><p class="subtle">Counts cover the full register, regardless of filters. As at <span id="today"></span>.</p><div id="dashboard" class="dashboard"></div></section>
+<section id="editor" class="panel" aria-labelledby="editor-title" hidden>
+<h2 id="editor-title">Add document</h2><p>Status is calculated from expiry. All fields are required.</p>
+<form id="form" novalidate><div class="form-grid">
+<label>Document name<input id="name" name="name" required aria-describedby="name-error"><span id="name-error" class="error"></span></label>
+<label>Category<select id="category" name="category" required aria-describedby="category-error"><option value="">Choose category</option></select><span id="category-error" class="error"></span></label>
+<label>Responsible person<input id="responsiblePerson" name="responsiblePerson" required aria-describedby="responsiblePerson-error"><span id="responsiblePerson-error" class="error"></span></label>
+<label>Issue date<input id="issueDate" name="issueDate" type="date" required aria-describedby="issueDate-error"><span id="issueDate-error" class="error"></span></label>
+<label>Expiry date<input id="expiryDate" name="expiryDate" type="date" required aria-describedby="expiryDate-error"><span id="expiryDate-error" class="error"></span></label>
+</div><div class="actions"><button type="submit">Save document</button><button id="cancel-edit" class="secondary" type="button">Cancel</button></div></form></section>
+<section id="confirmation" class="panel" aria-labelledby="delete-title" hidden><h2 id="delete-title">Delete document?</h2><p id="delete-detail"></p><div class="actions"><button id="confirm-delete" class="danger" type="button">Confirm delete</button><button id="cancel-delete" class="secondary" type="button">Cancel</button></div></section>
+<section aria-labelledby="register-title"><h2 id="register-title">Documents</h2><div class="filters"><label>Search documents or people<input id="search" type="search" placeholder="Search the register"></label><label>Category<select id="filter-category"><option value="">All categories</option></select></label><label>Status<select id="filter-status"><option value="">All statuses</option></select></label><button id="clear" class="secondary" type="button">Clear filters</button></div><p id="results" class="subtle"></p><div id="records" class="records"></div></section>
+<p id="announcement" role="status" aria-live="polite"></p>
+<footer>Expiry today through 30 days ahead: expiring. Before today: expired. This demonstration does not determine legal compliance.</footer>
+</main><script type="module" src="main.js"></script></body></html>

@@ -3,21 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#183e39">
-  <title>The Data Keepers — fictional learning pilot</title>
-  <link rel="icon" href="data:,">
+  <meta name="color-scheme" content="light">
+  <title>The Data Keepers — fictional pilot</title>
   <link rel="stylesheet" href="styles.css">
-  <script type="module" src="main.js"></script>
+  <script src="story.js" defer></script>
+  <script src="engine.js" defer></script>
+  <script src="ui.js" defer></script>
 </head>
 <body>
-  <a class="skip" href="#game">Skip to the game</a>
-  <header class="masthead"><span class="mark" aria-hidden="true">DK</span><div><p class="brand">The Data Keepers</p><p class="eyebrow">A fictional learning pilot</p></div><span class="time">About 5 minutes</span></header>
-  <main id="game" tabindex="-1">
-    <div class="topline"><span>Warranga / One offer, many responsibilities</span><span id="progress" role="status" aria-live="polite" aria-atomic="true">Introduction</span></div>
-    <div class="track" aria-hidden="true"><span id="track-fill"></span></div>
-    <article id="scene" aria-labelledby="scene-title"></article>
-    <noscript><h1>JavaScript is needed to play</h1><p>This local game uses JavaScript to show choices and consequences. Enable it and reload to begin. No player data is collected.</p></noscript>
+  <a class="skip" href="#scene-title">Skip to story</a>
+  <header><p class="eyebrow">A fictional learning pilot · about 5 minutes</p><h1>The Data Keepers</h1><p>Who decides how community data is used?</p></header>
+  <main>
+    <aside aria-label="About this pilot"><p>Indigenous Data Sovereignty includes community authority over how data about a community is collected, accessed, used and governed. Individual privacy and consent matter alongside that collective authority.</p><p>Warranga and this scenario are fictional. This pilot has no community endorsement and is not an accredited assessment. Community consultation and Indigenous-led review are required before presenting it as a community-endorsed resource.</p></aside>
+    <p id="progress">Decision 1 of 4</p>
+    <section id="scene" aria-labelledby="scene-title"></section>
+    <p id="announcement" class="sr-only" role="status" aria-live="polite"></p>
+    <noscript><p>JavaScript is needed to play this branching story. Enable it and reopen this local file.</p></noscript>
   </main>
-  <footer><p>All community names, characters and records are fictional. No personal or community data is collected. Choices last only until restart or reload.</p><p>This educational pilot is not community endorsed or an accredited competency assessment. Community consultation and Indigenous-led review are required before representing it as a community-endorsed resource.</p></footer>
+  <footer>Choices stay in memory on this page. No records, accounts or analytics. Reloading starts again.</footer>
 </body>
 </html>

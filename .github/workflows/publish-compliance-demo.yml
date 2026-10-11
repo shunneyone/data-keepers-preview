@@ -1,0 +1,66 @@
+name: Publish Compliance Tracker Demo
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: compliance-demo-publishing
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve private factory candidate
+        env:
+          GH_TOKEN: ${{ secrets.FACTORY_READ_TOKEN }}
+        shell: bash
+        run: |
+          test -n "$GH_TOKEN"
+          mkdir -p candidate
+          gh run download 38124470651 --repo shunneyone/ai-product-factory --name new-product-candidate --dir candidate
+          test -s candidate/app/index.html
+          test -s candidate/app/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Re-run compliance model tests
+        run: npm --prefix candidate/app test
+      - name: Prepare isolated public demonstration
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+          src=Path("candidate/app")
+          dest=Path("compliance-tracker")
+          allowed={"index.html","main.js","model.js","demo-data.js","styles.css"}
+          for name in sorted(allowed):
+              file=src/name
+              if not file.is_file() or file.is_symlink() or file.stat().st_size>1_000_000:
+                  raise SystemExit("Missing or invalid asset: "+name)
+              dest.mkdir(exist_ok=True)
+              shutil.copyfile(file,dest/name)
+          html=(dest/"index.html").read_text()
+          for name in ["main.js","styles.css"]:
+              if name not in html:
+                  raise SystemExit("Missing expected asset reference: "+name)
+          for name in ["main.js","model.js","demo-data.js"]:
+              if name not in (dest/"main.js").read_text() and name!="main.js":
+                  raise SystemExit("Missing expected JavaScript module: "+name)
+          print("Prepared five static files; existing Data Keepers root files untouched")
+          PY
+      - name: Publish only compliance-tracker directory
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add compliance-tracker/
+          if git diff --cached --quiet; then
+            echo "No changes to publish"
+          else
+            git commit -m "Publish founder-approved fictional compliance tracker preview"
+            git push origin HEAD:main
+          fi

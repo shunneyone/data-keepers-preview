@@ -1,0 +1,67 @@
+name: Publish Approved Data Keepers Preview
+on:
+  workflow_dispatch:
+    inputs:
+      source_run:
+        description: "Verified release preparation run ID"
+        required: true
+        default: "38123037634"
+permissions:
+  contents: write
+concurrency:
+  group: data-keepers-publishing
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download release candidate from private factory
+        env:
+          GH_TOKEN: ${{ secrets.FACTORY_READ_TOKEN }}
+          SOURCE_RUN: ${{ inputs.source_run }}
+        shell: bash
+        run: |
+          test -n "$GH_TOKEN" || { echo "Missing FACTORY_READ_TOKEN"; exit 1; }
+          [[ "$SOURCE_RUN" =~ ^[0-9]+$ ]] || { echo "Invalid source run"; exit 1; }
+          mkdir -p candidate
+          gh run download "$SOURCE_RUN" --repo shunneyone/ai-product-factory --name data-keepers-release-candidate --dir candidate
+          test -s candidate/index.html
+          test -s candidate/release-manifest.json
+      - name: Validate release manifest and copy static assets
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib,json,pathlib,shutil
+          src=pathlib.Path("candidate")
+          manifest=json.loads((src/"release-manifest.json").read_text())
+          assert manifest.get("status")=="candidate_requires_human_approval"
+          allow={".html",".js",".mjs",".css",".svg",".png",".jpg",".jpeg",".webp",".ico",".woff2"}
+          files=manifest["files"]
+          assert files and len(files)<=100
+          for item in files:
+              rel=pathlib.PurePosixPath(item["path"])
+              assert not rel.is_absolute() and ".." not in rel.parts and rel.suffix in allow
+              assert not any(p.startswith(".") for p in rel.parts)
+              source=src.joinpath(*rel.parts)
+              assert source.is_file() and not source.is_symlink()
+              data=source.read_bytes()
+              assert len(data)==item["bytes"] and hashlib.sha256(data).hexdigest()==item["sha256"]
+              assert len(data)<=5_000_000
+              dest=pathlib.Path("site").joinpath(*rel.parts)
+              dest.parent.mkdir(parents=True,exist_ok=True)
+              dest.write_bytes(data)
+          assert (pathlib.Path("site")/"index.html").exists()
+          PY
+      - name: Publish approved candidate to main
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp -R site/. .
+          touch .nojekyll
+          git add -A index.html main.js engine.js story.js styles.css .nojekyll
+          git diff --cached --quiet && { echo "No changes to publish"; exit 0; }
+          git commit -m "Publish reviewed Data Keepers preview from run ${{ inputs.source_run }}"
+          git push origin HEAD:main
